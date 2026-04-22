@@ -18,6 +18,13 @@ impl LayershellTest {
 
         Self
     }
+
+    pub fn get_minute(&mut self, minute: u32) -> String {
+        match minute {
+            0..9 => format!("0{}", minute),
+            _ => format!("{}", minute),
+        }
+    }
 }
 
 impl gpui::Render for LayershellTest {
@@ -31,11 +38,13 @@ impl gpui::Render for LayershellTest {
         gpui::div()
             .flex()
             .flex_col()
+            .justify_center()
             .items_center()
             .size_full()
-            .bg(gpui::rgb(0x282828))
-            .text_color(gpui::rgb(0xe0e0e0))
-            .child(format!("{}:{}:{}", now.hour(), now.minute(), now.second()))
+            .bg(gpui::rgba(0xffffff00))
+            .text_color(gpui::rgb(0xffffff))
+            .text_size(gpui::px(64.0))
+            .child(format!("{}:{}", now.hour(), self.get_minute(now.minute())))
     }
 }
 
@@ -45,17 +54,14 @@ fn main() {
             gpui::WindowOptions {
                 window_bounds: Some(gpui::WindowBounds::Windowed(gpui::Bounds {
                     origin: gpui::point(gpui::px(0.0), gpui::px(0.0)),
-                    size: gpui::size(gpui::px(1920.0), gpui::px(30.0)),
+                    size: gpui::size(gpui::px(1920.0), gpui::px(1200.0)),
                 })),
                 app_id: Some("gpui_layershell_test".to_string()),
                 window_background: gpui::WindowBackgroundAppearance::Transparent,
                 kind: gpui::WindowKind::LayerShell(gpui::layer_shell::LayerShellOptions {
-                    namespace: "bar".to_string(),
-                    layer: gpui::layer_shell::Layer::Top,
-                    anchor: gpui::layer_shell::Anchor::RIGHT
-                        | gpui::layer_shell::Anchor::LEFT
-                        | gpui::layer_shell::Anchor::TOP,
-                    exclusive_zone: Some(gpui::px(30.0)),
+                    namespace: "clock".to_string(),
+                    layer: gpui::layer_shell::Layer::Background,
+                    anchor: gpui::layer_shell::Anchor::all(),
                     margin: None,
                     keyboard_interactivity: gpui::layer_shell::KeyboardInteractivity::None,
                     ..Default::default()

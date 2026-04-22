@@ -1,10 +1,17 @@
-use chrono::Timelike;
-use gpui::prelude::*;
+use gpui::{
+    App, Bounds, Window, WindowBackgroundAppearance, WindowBounds, WindowKind, WindowOptions, div,
+    layer_shell::{Anchor, KeyboardInteractivity, Layer, LayerShellOptions},
+    point,
+    prelude::*,
+    px, rgb, rgba, size,
+};
 use gpui_platform::application;
 
-struct LayershellTest;
+use chrono::prelude::*;
 
-impl LayershellTest {
+struct GpuiClock;
+
+impl GpuiClock {
     fn new(cx: &mut Context<Self>) -> Self {
         cx.spawn(async move |this, cx| {
             loop {
@@ -27,48 +34,44 @@ impl LayershellTest {
     }
 }
 
-impl gpui::Render for LayershellTest {
-    fn render(
-        &mut self,
-        _window: &mut gpui::Window,
-        _cx: &mut gpui::Context<Self>,
-    ) -> impl gpui::IntoElement {
-        let now = chrono::Local::now();
+impl Render for GpuiClock {
+    fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
+        let now = Local::now();
 
-        gpui::div()
+        div()
             .flex()
             .flex_col()
             .justify_center()
             .items_center()
             .size_full()
-            .bg(gpui::rgba(0xffffff00))
-            .text_color(gpui::rgb(0xffffff))
-            .text_size(gpui::px(64.0))
+            .bg(rgba(0xffffff00))
+            .text_color(rgb(0xffffff))
+            .text_size(px(64.0))
             .child(format!("{}:{}", now.hour(), self.get_minute(now.minute())))
     }
 }
 
 fn main() {
-    application().run(|cx: &mut gpui::App| {
+    application().run(|cx: &mut App| {
         cx.open_window(
-            gpui::WindowOptions {
-                window_bounds: Some(gpui::WindowBounds::Windowed(gpui::Bounds {
-                    origin: gpui::point(gpui::px(0.0), gpui::px(0.0)),
-                    size: gpui::size(gpui::px(1920.0), gpui::px(1200.0)),
+            WindowOptions {
+                window_bounds: Some(WindowBounds::Windowed(Bounds {
+                    origin: point(px(0.0), px(0.0)),
+                    size: size(px(1920.0), px(1200.0)),
                 })),
-                app_id: Some("gpui_layershell_test".to_string()),
-                window_background: gpui::WindowBackgroundAppearance::Transparent,
-                kind: gpui::WindowKind::LayerShell(gpui::layer_shell::LayerShellOptions {
+                app_id: Some("gpui_clock".to_string()),
+                window_background: WindowBackgroundAppearance::Transparent,
+                kind: WindowKind::LayerShell(LayerShellOptions {
                     namespace: "clock".to_string(),
-                    layer: gpui::layer_shell::Layer::Background,
-                    anchor: gpui::layer_shell::Anchor::all(),
+                    layer: Layer::Background,
+                    anchor: Anchor::all(),
                     margin: None,
-                    keyboard_interactivity: gpui::layer_shell::KeyboardInteractivity::None,
+                    keyboard_interactivity: KeyboardInteractivity::None,
                     ..Default::default()
                 }),
                 ..Default::default()
             },
-            |_, cx| cx.new(LayershellTest::new),
+            |_, cx| cx.new(GpuiClock::new),
         )
         .unwrap();
     });

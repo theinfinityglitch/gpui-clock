@@ -32,6 +32,24 @@ impl GpuiClock {
             _ => format!("{}", number),
         }
     }
+
+    pub fn get_month(&mut self, month: u32) -> String {
+        match month {
+            1 => "January".to_string(),
+            2 => "February".to_string(),
+            3 => "March".to_string(),
+            4 => "April".to_string(),
+            5 => "May".to_string(),
+            6 => "June".to_string(),
+            7 => "July".to_string(),
+            8 => "August".to_string(),
+            9 => "September".to_string(),
+            10 => "October".to_string(),
+            11 => "November".to_string(),
+            12 => "December".to_string(),
+            _ => "".to_string(),
+        }
+    }
 }
 
 impl Render for GpuiClock {
@@ -52,6 +70,13 @@ impl Render for GpuiClock {
                 self.to_24(now.hour()),
                 self.to_24(now.minute())
             ))
+            .child(div().text_size(px(32.0)).child(format!(
+                "{}, {} {}, {}",
+                now.weekday(),
+                self.get_month(now.month()),
+                now.day(),
+                now.year()
+            )))
     }
 }
 

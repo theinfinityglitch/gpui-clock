@@ -26,10 +26,10 @@ impl GpuiClock {
         Self
     }
 
-    pub fn get_minute(&mut self, minute: u32) -> String {
-        match minute {
-            0..9 => format!("0{}", minute),
-            _ => format!("{}", minute),
+    pub fn to_24(&mut self, number: u32) -> String {
+        match number {
+            0..9 => format!("0{}", number),
+            _ => format!("{}", number),
         }
     }
 }
@@ -47,7 +47,11 @@ impl Render for GpuiClock {
             .bg(rgba(0xffffff00))
             .text_color(rgb(0xffffff))
             .text_size(px(64.0))
-            .child(format!("{}:{}", now.hour(), self.get_minute(now.minute())))
+            .child(format!(
+                "{}:{}",
+                self.to_24(now.hour()),
+                self.to_24(now.minute())
+            ))
     }
 }
 
